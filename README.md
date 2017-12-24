@@ -18,5 +18,25 @@ You can keep your data (pages, photos, tags and more) from Bludit. This is curre
 
 You can convert multiple xml files. To do this, upload first your first xml file and when finish with the conversion, upload the next file and change the settings for this new file. Continue this until all files are converted. Do not disable the plugin until done, otherwise it will delete everything.
 
+## 301 redirects
+If your WP blog is in English, you can redirect your old posts to avoid loose your traffic. Open your htaccess file and enter this code below. You need only one, so keep only the line you need, based on your WP’s permalinks settings.
+
+```
+RewriteEngine On
+RewriteBase /
+
+# REDIRECT WP TO BLUDIT
+# Month and name
+RedirectMatch 301 ^/([0-9]+)/([0-9]+)/(.*)$ http://example.com/$3
+
+# Day and name
+RedirectMatch 301 ^/([0-9]+)/([0-9]+)/([0-9]+)/(.*)$ http://example.com/$4
+
+# Custom Structure
+RedirectMatch 301 ^/post/(.*)$ http://example.com/$1
+```
+
+Remember to test thoroughly after making any changes.
+
 ## See more info and screenshots here:
 https://g3ar.xyz/projects/wordpress-bludit-converter/
