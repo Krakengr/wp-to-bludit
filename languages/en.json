@@ -1,0 +1,21 @@
+{
+	"plugin-data":
+	{
+		"name": "WordPress to Bludit Converter",
+		"description": "Convert Posts, Pages, Categories, Tags from WordPress to Bludit."
+	},
+
+	"convert-xml": "Begin the conversion",
+	"xml-name": "Filename",
+	"xml-file": "Enter the filename of the wordpress exported XML file you uploaded in 'uploads' folder, eg 'wordpress.blog.xml'",
+	"disqus-empty": "Leave blank to disable comments conversion. Otherwise enter your disqus ID to convert the comments.",
+	"disqus-id": "Disqus ID",
+	"embed": "Replace Links to embed code",
+	"merge": "Keep old data",
+	"merge-info": "Check to keep your Bludit's data.",
+	"embed-info": "Check to convert Video/Twitter links to embed code.",
+	"success": "All Done. Disable the plugin now if you are ready...",
+	"no-file-found": "The XML file not found",
+	"locked": "The form is now locked for changes and is ready for the conversion to begin. If you want to make a change, disable and enable the plugin again.", 
+	"file-error": "Failed loading XML"
+}
