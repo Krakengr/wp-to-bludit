@@ -76,7 +76,8 @@ class pluginWPToBludit extends Plugin {
 		
 		global $Language;
 		global $Site;
-						
+		
+		//If the convert button is pressed but the file is not there, don't continue...		
 		if ( Text::isNotEmpty( $this->getValue( 'xmlfile' ) ) && !file_exists(UPLOADS_ROOT . $this->getDbField('xmlfile'))) {
 			Alert::set($Language->get("no-file-found"));
 			Redirect::page('configure-plugin/pluginWPToBludit');
@@ -84,13 +85,14 @@ class pluginWPToBludit extends Plugin {
 		
 		//Load the XML data, before we delete everything
 		$xml = simplexml_load_string(file_get_contents(UPLOADS_ROOT . $this->getDbField('xmlfile')));
-						
+		
+		//Is this a valid xml data?
 		if ($xml === false) {
 			Alert::set($Language->get("file-error"));
 			Redirect::page('configure-plugin/pluginWPToBludit');
 		}
 		
-		//Arrays
+		//The Arrays
 		$categories = array();
 		$tags = array();
 		$comments = array();
@@ -115,7 +117,7 @@ class pluginWPToBludit extends Plugin {
 			//And uploads too...
 			pluginWPToBludit::rrmdir(UPLOADS_ROOT);
 				
-			//and create it again...
+			//and create them again...
 			if (!is_dir(PAGES_ROOT))
 				mkdir(PAGES_ROOT, 0755, true) or die ('Could not create folder ' . PAGES_ROOT);
 			
@@ -128,7 +130,7 @@ class pluginWPToBludit extends Plugin {
 			if (!is_dir(PROFILES_ROOT))
 				mkdir(PROFILES_ROOT, 0755, true) or die ('Could not create folder ' . PROFILES_ROOT);
 			
-		} else {
+		} else { //It's OK, continue or merge the data...
 			
 			//Load the data in arrays
 			if ( file_exists( DB_CATS ) )
@@ -136,6 +138,8 @@ class pluginWPToBludit extends Plugin {
 			
 			if ( file_exists( DB_PAGES ) ) {
 				$posts = json_decode(file_get_contents(DB_PAGES, NULL, NULL, 50), TRUE);
+				
+				//For this, we need the last position to continue
 				uasort( $posts, function($a, $b) { return $a['position'] - $b['position']; } );
 				$last = end($posts);
 				$page_pos = $last['position'];
@@ -176,7 +180,7 @@ class pluginWPToBludit extends Plugin {
 			fclose($file);
 		}
 		
-		//Let's keep the attachments in an array...
+		//Keep the attachments in an array...
 		foreach($xml->channel->item as $item) {
 			$type = $item->xpath('wp:post_type');
 			$type = $type['0'];
@@ -213,10 +217,11 @@ class pluginWPToBludit extends Plugin {
 			$date = $item->xpath('wp:post_date');
 			$date = (string) $date['0'];
 			
-			//Let's keep the original post name. We need this if we want to redirect to the new url...
+			//Keep the original post name. We need this if we want to redirect to the new url...
 			$seo = $item->xpath('wp:post_name');
 			$seo = (string) $seo['0'];
 			
+			//If the name is non-latin, create a new one
 			if ( preg_match( '/[^\\p{Common}\\p{Latin}]/u', $seo ) ) {
 				$seo = urldecode ( $seo );
 				$seo = pluginWPToBludit::seo ( $seo );
@@ -224,8 +229,8 @@ class pluginWPToBludit extends Plugin {
 			
 			//Do we still have problems?
 			if ( ( strpos( $seo, '%' ) !== false ) || empty( $seo ) ) {
+				//Keep the name the same each time we run this method, to avoid convert everything again...
 				$seo = substr( md5( $title ), 0, 15 );
-				//$seo = pluginWPToBludit::generate_key ( 15 );
 			}
 	
 			$p_id = $item->xpath('wp:post_id');
@@ -274,7 +279,7 @@ class pluginWPToBludit extends Plugin {
 			
 			$content = pluginWPToBludit::replaceImage ( $content );
 			
-			//Convert the posts first
+			//Convert the posts and pages only
 			if( ($type == 'post') || ($type == 'page') ) {
 				$page_pos++;
 				$p_tags = '';
@@ -334,6 +339,7 @@ class pluginWPToBludit extends Plugin {
 				$p_dir = PAGES_ROOT . $seo . '/';
 				$f_name = $p_dir . 'index.txt';
 				
+				//We can't continue if the folder can't be created...
 				if (!is_dir($p_dir))
 					mkdir($p_dir, 0755, true) or die ('Could not create folder ' . $seo . ' in ' . PAGES_ROOT);
 					
@@ -343,10 +349,12 @@ class pluginWPToBludit extends Plugin {
 				
 				$uuid = sha1($p);
 				
+				//Check if the post is already there...
 				if ( file_exists( $f_name ) ) {
 					echo 'Post: ' . $title . ' already exists<br />';
 					continue;
 				}
+				
 				//Create file	
 				file_put_contents($f_name, $p);
 				
@@ -354,6 +362,7 @@ class pluginWPToBludit extends Plugin {
 				
 				if ($type == 'post')
 					$lstatus = $post_status;
+				
 				else {
 					
 					if ($status == 'draft')
@@ -381,6 +390,7 @@ class pluginWPToBludit extends Plugin {
 					'slug' => $seo
 				);
 				
+				//Do we need the comments?
 				if ( $comment && ( Text::isNotEmpty( $this->getValue( 'disqus_id' ) ) ) )
 				{			
 					foreach ($item->xpath('wp:comment') as $co) 
@@ -460,6 +470,7 @@ class pluginWPToBludit extends Plugin {
 
 		}
 		
+		//Let's backup the data...
 		if ( count( $posts ) > 0)
 		{
 			uasort( $posts, function($a, $b) { return $b['position'] - $a['position']; } );
@@ -484,12 +495,15 @@ class pluginWPToBludit extends Plugin {
 				
 		}
 		
+		//Create the disqus file, if we need it...
 		if ( Text::isNotEmpty( $this->getValue( 'disqus_id' ) ) )
 			file_put_contents(UPLOADS_ROOT . '/comments.xml', $doc->saveXML());
 		
+		//Delete the XML file...
 		if ( file_exists( UPLOADS_ROOT . $this->getDbField('xmlfile' ) ) )
 			unlink ( UPLOADS_ROOT . $this->getDbField( 'xmlfile' ) );
-			
+		
+		//We're done...
 		Alert::set($Language->get("success"));
 		sleep ( 3 );
 		Redirect::page('plugins');
