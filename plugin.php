@@ -103,7 +103,7 @@ class pluginWPToBludit extends Plugin {
 		$com_id = 0;
 		
 		//This is to continue the conversion. Doesn't work well yet...
-		if ( $this->getValue('embed') == 1 ) {
+		if ( $this->getValue('merge') == 1 ) {
 			$file = fopen($this->workspace().'lock', 'w') or die("can't open file");
 			fclose($file);
 		}
