@@ -2,9 +2,9 @@
 	"author": "Kraken",
 	"email": "",
 	"website": "http://g3ar.xyz/",
-	"version": "0.1",
+	"version": "0.2",
 	"releaseDate": "2017-12-20",
 	"license": "MIT",
-	"compatible": "2.0",
+	"compatible": "2.1",
 	"notes": ""
 }
