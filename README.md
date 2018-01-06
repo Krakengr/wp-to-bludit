@@ -38,5 +38,9 @@ RedirectMatch 301 ^/post/(.*)$ http://example.com/$1
 
 Remember to test thoroughly after making any changes.
 
+## URLify
+Plugin now has URLify as a slug generator. URLify is a PHP port of URLify.js from the Django project. Transliterates non-ascii characters for use in URLs. 
+https://github.com/jbroadway/urlify
+
 ## See more info and screenshots here:
 https://g3ar.xyz/projects/wordpress-bludit-converter/
