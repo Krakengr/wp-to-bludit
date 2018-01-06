@@ -2,7 +2,8 @@
 			
 class pluginWPToBludit extends Plugin {
 
-	public function init() {
+	public function init() 
+	{
 		
 		set_time_limit (0);
 	
@@ -12,12 +13,14 @@ class pluginWPToBludit extends Plugin {
 		define('THUMBS_ROOT', PATH_ROOT.'bl-content'.DS.'uploads'.DS.'thumbnails'.DS);
 		define('PROFILES_ROOT', PATH_ROOT.'bl-content'.DS.'uploads'.DS.'profiles');
 		define('DB_CATS', PATH_ROOT.'bl-content'.DS.'databases'.DS.'categories.php');
+		
+		require ( PATH_ROOT.'bl-plugins'.DS.'wp-to-bludit'.DS.'urlify'.DS.'URLify.php' );
 	
 		$this->dbFields = array(
-			'merge'=>0,
-			'embed'=>0,
 			'disqus_id'=>'',
-			'xmlfile'=>''
+			'xmlfile'=>'',
+			'merge'=>0,
+			'embed'=>0
 		);
 	}	
 
@@ -33,43 +36,60 @@ class pluginWPToBludit extends Plugin {
 		$html = '<div>';
 		$html .= '<label>'.$Language->get('embed').'</label>';
 		$html .= '<input type="checkbox" id="jsembed" name="embed" '.($this->getValue('embed')==1?'checked="checked"':'').' value="1" ' . $disabled . '/>';
-		$html .= '<br /><small>'.$Language->get('embed-info').'</small>';
+		$html .= '<span class="tip"><small>'.$Language->get('embed-info').'</small></span>';
 		$html .= '</div>';
 		
 		$html .= '<div>';
 		$html .= '<label>'.$Language->get('merge').'</label>';
 		$html .= '<input type="checkbox" id="jsmerge" name="merge" '.($this->getValue('merge')==1?'checked="checked"':'').' value="1" ' . $disabled . '/>';
-		$html .= '<br /><small>'.$Language->get('merge-info').'</small>';
+		$html .= '<span class="tip">'.$Language->get('merge-info').'</small></span>';
 		$html .= '</div>';
 		
 		$html .= '<div>';
 		$html .= '<label>'.$Language->get('xml-name').'</label>';
 		$html .= '<input name="xmlfile" id="jsxmlfile" type="text" value="'.$this->getDbField('xmlfile').'" ' . $disabled . '>';
-		$html .= '<br /><small>'.$Language->get('xml-file').'</small>';
+		$html .= '<span class="tip"><small>'.$Language->get('xml-file').'</small></span>';
 		$html .= '</div>';
 		
 		$html .= '<div>';
 		$html .= '<label>'.$Language->get('disqus-id').'</label>';
 		$html .= '<input name="disqus_id" id="jsdisqusID" type="text" value="'.$this->getDbField('disqus_id').'" ' . $disabled . '>';
-		$html .= '<br /><small>'.$Language->get('disqus-empty').'</small>';
+		$html .= '<span class="tip"><small>'.$Language->get('disqus-empty').'</small></span>';
 		$html .= '</div>';
 		
 		
 		if ( Text::isNotEmpty( $this->getValue( 'xmlfile' ) ) && file_exists(UPLOADS_ROOT . $this->getDbField('xmlfile'))) {
 		
 			$html .= '<div class="unit-100">';
-			$html .= '<button class="uk-button uk-button-primary" type="submit" name="convert"><i class="uk-icon-life-ring"></i> ' .$Language->get("convert-xml"). '</button>';
+			$html .= '<button class="uk-button uk-button-primary" value="true" type="submit" name="convert"><i class="uk-icon-life-ring"></i> ' .$Language->get("convert-xml"). '</button>';
 			$html .= '</div>';
 			$html .= '<br /><small>'.$Language->get('locked').'</small>';
 			$html .= '<style type="text/css" scoped>.uk-form-row button, .uk-form-row a {display:none};</style>';
 			
-			if (isset($_POST['convert'])) {
-				pluginWPToBludit::convertXML();
-			}
 		}
 		
 		return $html;
 		
+	}
+	
+	public function post()
+	{
+		if ( isset( $_POST['convert'] ) ) {
+			
+			pluginWPToBludit::convertXML();
+			
+			return false;
+		} else {
+	
+			// Build the database
+			$this->db['embed'] = $_POST['embed'];
+			$this->db['merge'] = $_POST['merge'];
+			$this->db['xmlfile'] = Sanitize::html($_POST['xmlfile']);
+			$this->db['disqus_id'] = Sanitize::html($_POST['disqus_id']);
+
+			// Save the database
+			return $this->save();
+		}
 	}
 	
 	private function convertXML() {
@@ -223,8 +243,7 @@ class pluginWPToBludit extends Plugin {
 			
 			//If the name is non-latin, create a new one
 			if ( preg_match( '/[^\\p{Common}\\p{Latin}]/u', $seo ) ) {
-				$seo = urldecode ( $seo );
-				$seo = pluginWPToBludit::seo ( $seo );
+				$seo = URLify::filter ( $title );
 			}
 			
 			//Do we still have problems?
@@ -306,7 +325,7 @@ class pluginWPToBludit extends Plugin {
 					{
 						$tag_name = (string) $c;
 						$tag_name_seo = urldecode ( $tag_name );
-						$tag_name_seo = pluginWPToBludit::seo ( $tag_name_seo );
+						$tag_name_seo = URLify::filter ( $tag_name_seo );
 						
 						if( !isset($tags[$tag_name_seo]) )
 							$tags[$tag_name_seo] = array('name' => $tag_name, 'list' => array( $seo ) );
@@ -327,7 +346,7 @@ class pluginWPToBludit extends Plugin {
 						$cat_pos++;
 						$cat_name = (string) $c;
 						$cat_name_seo = urldecode ( $cat_name );
-						$cat_name_seo = pluginWPToBludit::seo ( $cat_name_seo );
+						$cat_name_seo = URLify::filter ( $cat_name_seo );
 						
 						if( !isset($categories[$cat_name_seo]) )
 							$categories[$cat_name_seo] = array('name' => $cat_name, 'list' => array( $seo ) );
@@ -509,7 +528,7 @@ class pluginWPToBludit extends Plugin {
 		Redirect::page('plugins');
 		
 	}
-	
+		
 	public function rrmdir($dir) {
 	  if (is_dir($dir)) {
 		$objects = scandir($dir);
@@ -537,37 +556,7 @@ class pluginWPToBludit extends Plugin {
 		$t1 = strtotime($a['date']);
 		$t2 = strtotime($b['date']);
 		return $t2 - $t1;
-	}  
-	
-	
-	public function seo( $slug )
-	{
-		if (function_exists('transliterator_transliterate')) {
-			
-			// Using transliterator to get rid of accents and convert non-Latin to Latin
-			$slug = transliterator_transliterate("Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC; [:Punctuation:] Remove; Lower();", $slug);
-		
-		} elseif (function_exists('iconv')) {
-			
-			// Transliterate accented characters to Latin (ascify)
-			$slug = iconv('UTF-8', 'ASCII//TRANSLIT', utf8_encode( $slug ));
-		
-		} else {
-			
-			// Convert special Latin letters and other characters to HTML entities.
-			$slug = htmlentities($slug, ENT_NOQUOTES, "UTF-8");
-
-			// With those HTML entities, either convert them back to a normal letter, or remove them.
-			$slug = preg_replace(array("/&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron);/i", "/&[^;]{2,6};/"), array("$1", " "), $slug);
-		}
-
-			// Now replace non-alphanumeric characters with a hyphen, and remove multiple hyphens.
-			$slug = strtolower(trim(preg_replace(array("/[^0-9a-z]/i", "/-+/"), "-", $slug), "-"));
-
-			return substr($slug, 0, 40);
-	
-	
-	}
+	} 
 	
 	public function shorten($string, $length) {
 		// By default, an ellipsis will be appended to the end of the text.
