@@ -1,0 +1,20 @@
+{
+	"plugin-data":
+	{
+		"name": "WordPress to Bludit Converter",
+		"description": "Übernimmt Beiträge, Seiten, Kategorien und Schlagwörter von WordPress für Bludit."
+	},
+	"convert-xml": "Übername durchführen",
+	"xml-name": "Dateiname",
+	"xml-file": "Name der exportierten XML-Datei eingeben, beispielsweise wordpress.blog.xml. Die Datei muss in das Verzeichnis /bl-content/uploads geladen werden.",
+	"disqus-empty": "Um Kommentare für Disqus zu übernehmen, die Disqus ID eingeben.",
+	"disqus-id": "Disqus ID",
+	"embed": "Eingebetteter Code",
+	"merge": "Inhalte behalten",
+	"merge-info": "Behält die bereits vorhandenen Inhalte der Installation.",
+	"embed-info": "Links zu Video-Clips und Twitter mit Code einbetten.",
+	"success": "Fertig. Das Plugin kann nun deaktiviert werden.",
+	"no-file-found": "Die XML-Datei wurde nicht gefunden",
+	"locked": "Die Datei ist bereit zur Übernahme. Wenn Du jetzt noch Änderungen daran vornehmen willst, deaktiviere das Plugin und aktiviere es dann wieder.", 
+	"file-error": "Die XML-Datei konnte nicht geladen werden."
+}
