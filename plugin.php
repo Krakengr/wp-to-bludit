@@ -14,7 +14,7 @@ class pluginWPToBludit extends Plugin {
 		define('PROFILES_ROOT', PATH_ROOT.'bl-content'.DS.'uploads'.DS.'profiles');
 		define('DB_CATS', PATH_ROOT.'bl-content'.DS.'databases'.DS.'categories.php');
 		
-		require ( PATH_ROOT.'bl-plugins'.DS.'wp-to-bludit'.DS.'urlify'.DS.'URLify.php' );
+		require(dirname(__FILE__).DS.'urlify'.DS.'URLify.php');
 	
 		$this->dbFields = array(
 			'disqus_id'=>'',
