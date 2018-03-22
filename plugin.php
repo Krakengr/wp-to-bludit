@@ -1,7 +1,7 @@
 <?php
 			
 class pluginWPToBludit extends Plugin {
-
+	
 	public function init() 
 	{
 		
@@ -19,7 +19,9 @@ class pluginWPToBludit extends Plugin {
 		$this->dbFields = array(
 			'disqus_id'=>'',
 			'xmlfile'=>'',
+			'url'=>'',
 			'merge'=>0,
+			'copy'=>0,
 			'embed'=>0
 		);
 	}	
@@ -46,9 +48,21 @@ class pluginWPToBludit extends Plugin {
 		$html .= '</div>';
 		
 		$html .= '<div>';
+		$html .= '<label>'.$Language->get('copy').'</label>';
+		$html .= '<input type="checkbox" id="jscopy" name="copy" '.($this->getValue('copy')==1?'checked="checked"':'').' value="1" ' . $disabled . '/>';
+		$html .= '<span class="tip">'.$Language->get('copy-info').'</small></span>';
+		$html .= '</div>';
+		
+		$html .= '<div>';
 		$html .= '<label>'.$Language->get('xml-name').'</label>';
 		$html .= '<input name="xmlfile" id="jsxmlfile" type="text" value="'.$this->getDbField('xmlfile').'" ' . $disabled . '>';
 		$html .= '<span class="tip"><small>'.$Language->get('xml-file').'</small></span>';
+		$html .= '</div>';
+		
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('url').'</label>';
+		$html .= '<input name="url" id="jsurl" type="text" value="'.$this->getDbField('url').'" ' . $disabled . '>';
+		$html .= '<span class="tip"><small>'.$Language->get('url-info').'</small></span>';
 		$html .= '</div>';
 		
 		$html .= '<div>';
@@ -78,18 +92,20 @@ class pluginWPToBludit extends Plugin {
 			
 			pluginWPToBludit::convertXML();
 			
-			return false;
 		} else {
 	
 			// Build the database
-			$this->db['embed'] = $_POST['embed'];
-			$this->db['merge'] = $_POST['merge'];
+			$this->db['embed'] = (!empty($_POST['embed'])) ? 1 : 0;
+			$this->db['copy'] = (!empty($_POST['copy'])) ? 1 : 0;
+			$this->db['merge'] = (!empty($_POST['merge'])) ? 1 : 0;
 			$this->db['xmlfile'] = Sanitize::html($_POST['xmlfile']);
-			$this->db['disqus_id'] = Sanitize::html($_POST['disqus_id']);
+			$this->db['url'] = Sanitize::html($_POST['url']);
+			$this->db['disqus_id'] = (!empty($_POST['disqus_id'])) ? Sanitize::html($_POST['disqus_id']) : '';
 
 			// Save the database
 			return $this->save();
 		}
+		return false;
 	}
 	
 	private function convertXML() {
@@ -118,6 +134,7 @@ class pluginWPToBludit extends Plugin {
 		$comments = array();
 		$posts = array();
 		$attachments = array();
+		$links = array();
 
 		$page_pos = 0;
 		$com_id = 0;
@@ -241,6 +258,8 @@ class pluginWPToBludit extends Plugin {
 			$seo = $item->xpath('wp:post_name');
 			$seo = (string) $seo['0'];
 			
+			$redir_seo = $seo;
+			
 			//If the name is non-latin, create a new one
 			if ( preg_match( '/[^\\p{Common}\\p{Latin}]/u', $seo ) ) {
 				$seo = URLify::filter ( $title );
@@ -248,8 +267,7 @@ class pluginWPToBludit extends Plugin {
 			
 			//Do we still have problems?
 			if ( ( strpos( $seo, '%' ) !== false ) || empty( $seo ) ) {
-				//Keep the name the same each time we run this method, to avoid convert everything again...
-				$seo = substr( md5( $title ), 0, 15 );
+				$seo = URLify::filter ( $title );
 			}
 	
 			$p_id = $item->xpath('wp:post_id');
@@ -261,7 +279,7 @@ class pluginWPToBludit extends Plugin {
 			$type = $item->xpath('wp:post_type');
 			$type = $type['0'];
 		
-			if ($status == 'trash')
+			if( ($status == 'trash') || ($status == 'inherit') )
 				continue;
 			
 			$post_status = ($status == 'draft') ? 'draft' : 'published';
@@ -297,6 +315,14 @@ class pluginWPToBludit extends Plugin {
 				$content = pluginWPToBludit::url2embed ( $content );
 			
 			$content = pluginWPToBludit::replaceImage ( $content );
+			
+			if ( Text::isNotEmpty( $this->getValue( 'url' ) ) ) {
+				
+				$exURL = str_replace (array("/", "."), array ("\/", "\."), $this->getValue( 'url' ) );
+				
+				$content = preg_replace('/' . $exURL . '\/([0-9]{4}\/)?([0-9]{2}\/)?([0-9]{2}\/)?([^_]+)\//', $Site->url() . "$4",  $content);
+				
+			}
 			
 			//Convert the posts and pages only
 			if( ($type == 'post') || ($type == 'page') ) {
@@ -474,7 +500,7 @@ class pluginWPToBludit extends Plugin {
 						
 						$comment_date_gmt = $commend_node->appendChild($doc->createElement("wp:comment_date_gmt", $com_date)); //Add Title under "item"
 						
-						$comment_content = $commend_node->appendChild($doc->createElement("wp:comment_content", $com_content)); //Add Title under "item"	
+						$comment_content = $commend_node->appendChild($doc->createElement("wp:comment_content", htmlentities( $com_content ))); //Add Title under "item"	
 						
 						$comment_approved = $commend_node->appendChild($doc->createElement("wp:comment_approved", $com_approved)); //Add Title under "item"
 						
@@ -630,6 +656,15 @@ class pluginWPToBludit extends Plugin {
 	}
 	
 	// Replace the <img> and [caption]tag with bludit's Img Link
+	private function replaceLinks($content)
+	{
+		
+		preg_match_all('/<a href=\"(.*)\">/', $content, $matches);
+		
+		$links = $matches['0'];
+		
+	}
+	// Replace the <img> and [caption]tag with bludit's Img Link
 	private function replaceImage($content)
 	{
 		
@@ -639,6 +674,7 @@ class pluginWPToBludit extends Plugin {
 		if (count($matches[3] > 0)) {
 			
 			foreach ($matches[3] as $key => $value) {
+				
 				$alt = htmlspecialchars( trim ( strip_tags ( $matches[4][$key] ) ), ENT_COMPAT );
 				
 				if ( strpos( $value, '?' ) !== false ) {
@@ -647,7 +683,19 @@ class pluginWPToBludit extends Plugin {
 					$img = $img['0'];
 				} else
 					$img = $value;
-			
+				
+				$info = pathinfo($img);
+				
+				if ( $this->getValue('copy') == 1 ) {
+					$img_temp = $info['basename'];//basename($value,'.'.$info['extension']);
+					$img_copy = pluginWPToBludit::create_image($value, UPLOADS_ROOT, $img_temp, $thumb = '');
+					
+					if (!empty($img_copy)) {
+						pluginWPToBludit::create_image($value, THUMBS_ROOT, $img_temp, $thumb = true);
+						$img = $img_copy;
+					}
+				}
+							
 				$bluditImg = '!['.$alt.']('.$img.')';
 			
 				$content = str_replace($matches[0][$key], $bluditImg, $content);
@@ -655,16 +703,14 @@ class pluginWPToBludit extends Plugin {
 			}
 		}
 		
-		//Let's now check if there are any images
+		//Let's now check if there are any images		
 		$pattern = '/<img\s*(?:class\s*\=\s*[\'\"](.*?)[\'\"].*?\s*|src\s*\=\s*[\'\"](.*?)[\'\"].*?\s*|alt\s*\=\s*[\'\"](.*?)[\'\"].*?\s*|width\s*\=\s*[\'\"](.*?)[\'\"].*?\s*|height\s*\=\s*[\'\"](.*?)[\'\"].*?\s*)+.*?>/si';
-		
-		preg_match_all($pattern, $content, $matches);
+			
+			preg_match_all($pattern, $content, $matches);
 
 		if (count($matches[2] > 0)) {
 			foreach ($matches[2] as $key => $value) {
-				
-				$alt = htmlspecialchars( trim ( $matches[3][$key] ), ENT_COMPAT );
-				
+								
 				if ( strpos( $value, '?' ) !== false ) {
 					
 					$img = explode('?', $value);
@@ -672,7 +718,19 @@ class pluginWPToBludit extends Plugin {
 				} else
 					$img = $value;
 				
-				$bluditImg = '!['.$alt.']('.$img.')';
+				$info = pathinfo($img);
+				
+				if ( $this->getValue('copy') == 1 ) {
+					$img_temp = $info['basename'];//basename($value,'.'.$info['extension']);
+					$img_copy = pluginWPToBludit::create_image($value, UPLOADS_ROOT, $img_temp, $thumb = '');
+					
+					if (!empty($img_copy)) {
+						pluginWPToBludit::create_image($value, THUMBS_ROOT, $img_temp, $thumb = true);
+						$img = $img_copy;
+					}
+				}
+				
+				$bluditImg = '![]('.$img.')';
 				
 				$content = str_replace($matches[0][$key], $bluditImg, $content);
 				
@@ -681,13 +739,13 @@ class pluginWPToBludit extends Plugin {
 		
 		return $content;
 	}
-	
+		
 	//This function copies the image
 	public function create_image($img_link, $upload_path, $name, $thumb = '')
 	{
 		
-		$ext = pathinfo($img_link, PATHINFO_EXTENSION);
-		$name = $name . '.' . $ext;
+		//$ext = pathinfo($img_link, PATHINFO_EXTENSION);
+		//$name = $name . '.' . $ext;
 		
 		if (is_file($upload_path . $name)) {
 			echo 'File "' . $name . '" already exists...<br />';
