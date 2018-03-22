@@ -38,6 +38,11 @@ RedirectMatch 301 ^/post/(.*)$ http://example.com/$1
 
 Remember to test thoroughly after making any changes.
 
+## 301 redirects (v1.0)
+The plugin creates a links.php file, where the old and the new links will be stored after the conversion. Then you can use the redirect plugin to redirect your old URLs to the new ones.
+
+The plugin also replaces the in-post URLs to the Bludit's link structure.
+
 ## URLify
 Plugin now has URLify as a slug generator. URLify is a PHP port of URLify.js from the Django project. Transliterates non-ascii characters for use in URLs. 
 https://github.com/jbroadway/urlify
