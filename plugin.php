@@ -15,7 +15,7 @@ class pluginWPToBludit extends Plugin {
 
 	public function init() 
 	{
-		//ignore_user_abort(true);
+		ignore_user_abort(true);
 		set_time_limit (0);
 		
 		define('PATH_COMMENTS',	PATH_CONTENT . 'databases' . DS . 'comments' . DS);
@@ -91,7 +91,7 @@ class pluginWPToBludit extends Plugin {
 		//if ( !empty( $this->getValue( 'xmlfile' ) ) && file_exists(PATH_UPLOADS . $this->getValue('xmlfile')))
 			//$disabled = 'disabled';
 		//else
-			$disabled = '';
+		$disabled = '';
 		
 		$html = '<div>';
 		$html .= '<label>'.$L->get('embed').'</label>';
@@ -169,7 +169,7 @@ class pluginWPToBludit extends Plugin {
 	{
 		global $L;
 				
-		//This is to continue the conversion. Doesn't work well yet...
+		//This is to make sure that we can merge any posts...
 		$this->loadDB();
 		
 		$xml = $this->loadPosts();
