@@ -2,24 +2,32 @@
 	"plugin-data":
 	{
 		"name": "WordPress to Bludit Converter",
-		"description": "Convert Posts, Pages, Categories, Tags from WordPress to Bludit."
+		"description": "Convert Posts, Pages, Categories, Tags and inURLs from WordPress to Bludit."
 	},
 
 	"convert-xml": "Begin the conversion",
 	"xml-name": "Filename",
 	"xml-file": "Enter the filename of the wordpress exported XML file you uploaded in 'uploads' folder, eg 'wordpress.blog.xml'",
-	"disqus-empty": "Leave blank to disable comments conversion. Otherwise enter your disqus ID to convert the comments.",
+	"disqus-empty": "Leave blank if you didn't choose to copy the comments in the previous step. Otherwise enter your disqus ID.",
 	"disqus-id": "Disqus ID",
 	"embed": "Replace Links to embed code",
 	"merge": "Keep old data",
 	"copy": "Copy images?",
-	"url": "Your URL",
-	"url-info": "Enter the URL your wordpress was installed, to convert the post links (eg http//:www.mysite.com  <--without trailing slash)",
-	"merge-info": "Check to keep your Bludit's data.",
+	"delete-xml-file": "Delete XML File",
+	"copy-comments": "Copy Comments?",
+	"disable-comments": "Disable",
+	"internal-comments": "Internal Comments",
+	"disqus-comments": "Disqus Comments",
+	"url": "Your Old URL",
+	"multilang": "MultiLanguage",
+	"multilang-info": "Enter the language you want to exclude from conversion, exactly as it's written (eg: English). Leave blank to disable it. (Not yet ready)",
+	"url-info": "Enter the URL of your wordpress blog, to automatically convert the in post URLs for each page and post (eg https//:www.mysite.com)",
+	"merge-info": "Check to keep your Bludit's data. Check it, if you want to merge your posts.",
 	"copy-info": "Check if you want to copy the images. Warning, this may take time.",
 	"embed-info": "Check to convert Video/Twitter links to embed code.",
 	"success": "All Done. Disable the plugin now if you are ready...",
 	"no-file-found": "The XML file not found",
+	"delete-info": "Check if you want to delete the XML file after the conversion",
 	"locked": "The form is now locked for changes and is ready for the conversion to begin. If you want to make a change, disable and enable the plugin again.", 
 	"file-error": "Failed loading XML"
 }
