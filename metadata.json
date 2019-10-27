@@ -1,9 +1,10 @@
 {
 	"author": "Kraken",
-	"website": "http://g3ar.xyz/",
-	"version": "1.0",
-	"releaseDate": "2017-12-20",
+	"email": "",
+	"website": "http://g3ar.gr/en/",
+	"version": "1.2",
+	"releaseDate": "2019-10-20",
 	"license": "MIT",
-	"compatible": "2.2",
+	"compatible": "3.10.0",
 	"notes": ""
 }
