@@ -1,0 +1,25 @@
+{
+	"plugin-data":
+	{
+		"name": "WordPress to Bludit Converter",
+		"description": "WordPress'ten Bludit'e yazıları, sayfaları, kategorileri ve etiketleri dönüştür."
+	},
+
+	"convert-xml": "Dönüştürmeye başla",
+	"xml-name": "Dosya adı",
+	"xml-file": "'uploads' klasörüne yüklediğiniz WordPress'ten dışa aktarılmış XML dosyasının dosya adını girin, örneğin 'wordpress.blog.xml'",
+	"disqus-empty": "Yorum dönüşümünü devre dışı bırakmak için boş bırakın. Aksi takdirde yorumları dönüştürmek için disqus kimliğinizi girin.",
+	"disqus-id": "Disqus kimliği",
+	"embed": "Bağlantı yerleştirmek için kodu değiştirin",
+	"merge": "Eski verileri sakla",
+	"copy": "Görüntüler kopyalansın mı?",
+	"url": "URL’niz",
+	"url-info": "Gönderi bağlantılarını dönüştürmek için WordPress'inizin kurulu olduğu URL'yi girin (örneğin http//:www.mysite.com  <--bölü olmadan)",
+	"merge-info": "Bludit'inizin verilerini saklamak için kontrol edin.",
+	"copy-info": "Görüntüleri kopyalamak isteyip istemediğinizi kontrol edin. Uyarı, bu zaman alabilir.",
+	"embed-info": "Video/Twitter bağlantılarını yerleştirme koduna dönüştürmeyi kontrol edin.",
+	"success": "Hepsi tamam. Hazırsanız eklentiyi şimdi devre dışı bırakın...",
+	"no-file-found": "XML dosyası bulunamadı",
+	"locked": "Form, artık değişiklikler için kilitlenmiştir ve dönüşümün başlaması için hazırdır. Bir değişiklik yapmak isterseniz, eklentiyi tekrar devre dışı bırakın ve etkinleştirin.", 
+	"file-error": "XML yüklemesi başarısız oldu"
+}
