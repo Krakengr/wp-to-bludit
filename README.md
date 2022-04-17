@@ -46,4 +46,4 @@ Plugin now has URLify as a slug generator for posts that have non-latin SEF. URL
 https://github.com/jbroadway/urlify
 
 ## See more info and screenshots here:
-https://homebrewgr.info/en/projects/bludit-wordpress-converter/
+https://badtooth.studio/bludit-wordpress-converter/
